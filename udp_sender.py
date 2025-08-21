@@ -47,7 +47,6 @@ def sender(
     base = 0
     next_seq = 0
     lock = threading.Lock()
-    timer = None
     timer_start = None
 
     def start_timer():

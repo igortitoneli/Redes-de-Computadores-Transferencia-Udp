@@ -36,20 +36,17 @@ def receiver(listen_port, output_file, loss_prob=0.0):
         seq, data, checksum = parse_packet(packet)
         if seq is None:
             continue
-        # EOF packet
+
         if seq == 0xFFFFFFFF:
             print("EOF received, finishing.")
-            # send final ACK for last received seq - 1
             ack = make_ack(expected - 1 if expected > 0 else 0)
             sock.sendto(ack, sender_addr)
             break
 
-        # optional simulate loss of incoming packets
         if random.random() < loss_prob:
             print(f"[SIMULADO] perda recepção seq {seq}")
             continue
 
-        # validate checksum
         calc = zlib.crc32(data) & 0xFFFFFFFF
         if calc != checksum:
             print(
@@ -57,15 +54,12 @@ def receiver(listen_port, output_file, loss_prob=0.0):
             )
             continue
 
-        # If seq == expected, accept and advance; if greater, it's out of order -> drop (GBN).
         if seq == expected:
             f.write(data)
             expected += 1
-            # send cumulative ack (last in-order seq)
             ack_pkt = make_ack(seq)
             sock.sendto(ack_pkt, sender_addr)
         else:
-            # duplicate or out-of-order; resend last ack (expected-1) to inform sender
             ack_to_send = expected - 1 if expected > 0 else 0
             sock.sendto(make_ack(ack_to_send), sender_addr)
 
