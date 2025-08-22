@@ -10,7 +10,7 @@ echo "IP local detectado: $IP_LOCAL"
 
 # Parâmetros
 PORTA=5001
-ARQUIVO="arquivo_para_enviar.bin"
+ARQUIVO="./sender/arquivo_para_enviar.bin"
 
 # Executa o sender
 python3 udp_sender.py "$IP_LOCAL" "$PORTA" "$ARQUIVO" 8 1024 0.6 0.0
